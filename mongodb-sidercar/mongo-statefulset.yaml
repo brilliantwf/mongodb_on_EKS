@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: mongodb
+spec:
+ selector:
+   matchLabels:
+     app: mongodb
+ serviceName: "service-mongodb"
+ replicas: 3
+ template:
+   metadata:
+     labels:
+       role: mongo
+       environment: test
+       app: mongodb
+   spec:
+     terminationGracePeriodSeconds: 10
+     selector:
+     containers:
+       - name: mongo
+         image: mongo:4.0
+         command:
+           - mongod
+           - "--replSet"
+           - rs0
+           - "--smallfiles"
+           - "--noprealloc"
+           - "--bind_ip=0.0.0.0"
+         ports:
+           - containerPort: 27017
+         volumeMounts:
+           - name: mongo-persistent-storage
+             mountPath: /data/db
+       - name: mongo-sidecar
+         image: morphy/k8s-mongo-sidecar
+         env:
+           - name: KUBERNETES_POD_LABELS
+             value: "role=mongo,environment=test"
+           - name: KUBERNETES_MONGO_SERVICE_NAME
+             value: "service-mongodb"
+ volumeClaimTemplates:
+ - metadata:
+     name: mongo-persistent-storage
+     annotations:
+       volume.beta.kubernetes.io/storage-class: "sc-gp2"
+   spec:
+     accessModes: [ "ReadWriteOnce" ]
+     resources:
+       requests:
+         storage: 10Gi
+

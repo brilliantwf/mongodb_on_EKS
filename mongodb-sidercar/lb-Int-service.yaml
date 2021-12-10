@@ -1,0 +1,17 @@
+# # External Load Balancer is below
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: mongodb
+  name: mongodb-internal
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 27017
+  selector:
+    statefulset.kubernetes.io/pod-name: mongodb-0
+
+
