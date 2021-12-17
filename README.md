@@ -1,4 +1,4 @@
-# 在AWS EKS 上部署Mongodb 相关yaml
+# 在Amazon EKS 上部署Mongodb 相关yaml
 
 包括
 
